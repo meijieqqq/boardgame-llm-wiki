@@ -1,0 +1,665 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#14211f">
+  <title>陣營推理入門｜桌遊教學簡報</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f5eddc;
+      --muted: #bac3b8;
+      --forest: #14211f;
+      --forest-light: #1d302d;
+      --panel: #233834;
+      --panel-soft: #2b403b;
+      --paper: #efe4cf;
+      --paper-ink: #23302a;
+      --coral: #e8795b;
+      --mint: #91c5b5;
+      --gold: #e3bd70;
+      --line: rgba(245, 237, 220, .16);
+      --shadow: 0 22px 60px rgba(0, 0, 0, .28);
+      font-family: "Avenir Next", Avenir, "PingFang TC", "Noto Sans TC", sans-serif;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      background:
+        radial-gradient(ellipse at 18% 0%, rgba(145, 197, 181, .12), transparent 34rem),
+        radial-gradient(ellipse at 100% 100%, rgba(232, 121, 91, .08), transparent 30rem),
+        var(--forest);
+      color: var(--ink);
+    }
+
+    button, a { font: inherit; }
+    button { color: inherit; }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      padding: 18px clamp(16px, 3.2vw, 48px) 14px;
+      gap: 12px;
+    }
+
+    .topbar, .bottombar {
+      width: min(100%, 1440px);
+      margin-inline: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      min-width: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .brand-mark {
+      width: 30px;
+      height: 30px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(227, 189, 112, .55);
+      color: var(--gold);
+      transform: rotate(45deg);
+    }
+
+    .brand-mark span { transform: rotate(-45deg); font-family: Georgia, serif; font-size: 18px; }
+    .brand strong { color: var(--ink); font-weight: 600; }
+    .top-meta { color: var(--muted); font-size: 12px; white-space: nowrap; }
+
+    .stage {
+      width: min(100%, 1440px);
+      min-height: 0;
+      margin-inline: auto;
+      display: grid;
+      align-items: stretch;
+    }
+
+    .slide {
+      position: relative;
+      isolation: isolate;
+      min-height: min(70vh, 760px);
+      overflow: hidden;
+      display: none;
+      grid-template-rows: auto 1fr auto;
+      gap: clamp(18px, 3.5vh, 34px);
+      padding: clamp(24px, 4vw, 58px);
+      border: 1px solid rgba(245, 237, 220, .14);
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.025), transparent 46%),
+        linear-gradient(145deg, #1d302d, #172724 72%);
+      box-shadow: var(--shadow);
+      animation: enter .36s ease both;
+    }
+
+    .slide::after {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      width: 128px;
+      height: 128px;
+      right: 28px;
+      top: -70px;
+      border: 1px solid rgba(227, 189, 112, .13);
+      transform: rotate(45deg);
+    }
+
+    .slide.is-active { display: grid; }
+
+    @keyframes enter {
+      from { opacity: .35; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .slide-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .eyebrow, .kicker {
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.3px;
+    }
+
+    .chapter-mark {
+      color: rgba(245, 237, 220, .5);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .content { min-height: 0; align-self: center; }
+    h1, h2, h3, p { margin-top: 0; }
+
+    h1, h2 {
+      max-width: 900px;
+      margin-bottom: 18px;
+      font-family: Georgia, "Songti TC", "Noto Serif TC", serif;
+      font-weight: 500;
+      line-height: 1.16;
+      letter-spacing: 0;
+      text-wrap: balance;
+    }
+
+    h1 { font-size: clamp(36px, 6.2vw, 82px); }
+    h2 { font-size: clamp(30px, 4vw, 56px); }
+    h3 { margin-bottom: 8px; font-size: clamp(17px, 1.8vw, 22px); font-weight: 650; }
+    p { margin-bottom: 0; color: var(--muted); font-size: clamp(15px, 1.45vw, 19px); line-height: 1.7; }
+    .lead { max-width: 740px; color: var(--ink); font-size: clamp(17px, 1.8vw, 22px); }
+    .accent { color: var(--coral); }
+    .mint { color: var(--mint); }
+    .gold { color: var(--gold); }
+
+    .slide-foot {
+      min-height: 28px;
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 14px;
+      border-top: 1px solid var(--line);
+      padding-top: 12px;
+    }
+
+    .takeaway { color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .source {
+      max-width: 48%;
+      color: var(--ink);
+      font: 11px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+      text-align: right;
+      overflow-wrap: anywhere;
+    }
+    .source a { color: var(--gold); text-decoration-color: rgba(227, 189, 112, .5); text-underline-offset: 3px; }
+    .source a:hover { color: var(--ink); }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(250px, .85fr);
+      align-items: center;
+      gap: clamp(24px, 6vw, 90px);
+    }
+
+    .clue-board {
+      min-height: 260px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-content: center;
+      gap: 12px;
+      transform: rotate(-2deg);
+    }
+
+    .clue {
+      min-height: 100px;
+      padding: 16px;
+      border: 1px solid rgba(35, 48, 42, .18);
+      background: var(--paper);
+      color: var(--paper-ink);
+      box-shadow: 5px 7px 0 rgba(0, 0, 0, .16);
+    }
+
+    .clue:nth-child(2) { transform: translateY(22px) rotate(3deg); }
+    .clue:nth-child(3) { transform: translate(18px, -2px) rotate(2deg); }
+    .clue .kicker { color: #a64e37; font-size: 9px; }
+    .clue strong { display: block; margin-top: 9px; font: 600 16px/1.35 Georgia, "Songti TC", serif; }
+    .clue-result {
+      display: grid;
+      place-items: center;
+      min-height: 100px;
+      border: 1px dashed rgba(145, 197, 181, .6);
+      color: var(--mint);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .two-lanes, .compare, .example-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .lane, .compare-card, .example-card {
+      min-width: 0;
+      padding: clamp(18px, 2.4vw, 30px);
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .035);
+    }
+
+    .lane.known { border-top: 3px solid var(--coral); }
+    .lane.unknown { border-top: 3px solid var(--mint); }
+    .lane-label { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; color: var(--ink); font-size: 13px; }
+    .lane-label b { color: var(--gold); font: 18px Georgia, serif; }
+    .small-note { margin-top: 12px; color: var(--muted); font-size: 13px; line-height: 1.55; }
+    .callout {
+      margin-top: 18px;
+      padding: 13px 16px;
+      border-left: 3px solid var(--gold);
+      background: rgba(227, 189, 112, .08);
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .record-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .record {
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .035);
+    }
+    .record-number { color: var(--coral); font: 24px Georgia, serif; }
+    .record strong { display: block; margin-bottom: 5px; font-size: 17px; }
+    .record span:last-child { color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .record-quote { margin-top: 14px; padding: 12px 16px; border-left: 2px solid var(--mint); color: var(--muted); font-size: 14px; }
+
+    .compare-card { min-height: 210px; }
+    .compare-card.fact { background: var(--paper); color: var(--paper-ink); }
+    .compare-card.guess { border-color: rgba(232, 121, 91, .48); }
+    .compare-card.fact p { color: #506159; }
+    .compare-card.guess p { color: var(--muted); }
+    .compare-card .kicker { margin-bottom: 18px; }
+    .compare-card.fact .kicker { color: #a64e37; }
+    .big-quote { margin: 13px 0 8px; font: 24px/1.35 Georgia, "Songti TC", serif; }
+
+    .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; margin-top: 24px; }
+    .step { position: relative; padding: 8px 22px 8px 0; }
+    .step:not(:last-child)::after { content: ""; position: absolute; top: 24px; right: 12px; width: 20px; border-top: 1px solid var(--gold); }
+    .step-no { display: grid; place-items: center; width: 40px; aspect-ratio: 1; margin-bottom: 15px; border: 1px solid var(--gold); border-radius: 50%; color: var(--gold); font: 17px Georgia, serif; }
+    .step p { font-size: 14px; }
+    .spoken-example { margin-top: 12px; padding: 15px 18px; background: rgba(145, 197, 181, .09); border-left: 3px solid var(--mint); color: var(--ink); font-size: 14px; line-height: 1.6; }
+
+    .mission-flow { display: grid; grid-template-columns: minmax(0, 1.1fr) 64px minmax(0, .9fr); align-items: center; gap: 14px; }
+    .team-board { padding: 22px; border: 1px solid var(--line); background: rgba(255, 255, 255, .035); }
+    .team-label { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 20px; color: var(--muted); font-size: 12px; }
+    .players { display: flex; flex-wrap: wrap; gap: 10px; }
+    .player {
+      width: 52px;
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(245, 237, 220, .36);
+      border-radius: 50%;
+      color: var(--ink);
+      font: 17px Georgia, serif;
+    }
+    .player.question { border-color: var(--coral); color: var(--coral); }
+    .flow-arrow { color: var(--gold); font-size: 28px; text-align: center; }
+    .result-ticket { padding: 22px; border: 1px solid rgba(232, 121, 91, .6); background: rgba(232, 121, 91, .1); }
+    .result-ticket strong { display: block; margin: 9px 0; color: var(--coral); font: 27px Georgia, serif; }
+    .result-ticket p { font-size: 13px; }
+    .limit-note { margin-top: 13px; color: var(--gold); font-size: 13px; }
+
+    .claim-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .claim {
+      min-height: 154px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, .035);
+    }
+    .claim-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 15px; }
+    .claim-head strong { font-size: 16px; }
+    .claim-tag { padding: 4px 7px; border: 1px solid rgba(227, 189, 112, .5); color: var(--gold); font-size: 10px; white-space: nowrap; }
+    .claim p { font-size: 13px; }
+    .evidence-question { margin-top: 14px; color: var(--mint); font-size: 15px; }
+
+    .cards-table { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); align-items: center; gap: clamp(20px, 5vw, 70px); }
+    .mini-deck { display: flex; align-items: center; justify-content: center; min-height: 215px; }
+    .mini-card {
+      width: clamp(72px, 9vw, 116px);
+      aspect-ratio: .72;
+      display: grid;
+      place-items: center;
+      margin-left: -13px;
+      border: 1px solid rgba(35, 48, 42, .18);
+      background: var(--paper);
+      color: var(--paper-ink);
+      box-shadow: 4px 7px 0 rgba(0,0,0,.2);
+      font: 24px Georgia, serif;
+    }
+    .mini-card:nth-child(2) { transform: translateY(-18px) rotate(-5deg); }
+    .mini-card:nth-child(3) { transform: translateY(10px) rotate(4deg); }
+    .mini-card.out { background: transparent; color: var(--muted); border: 1px dashed var(--muted); box-shadow: none; font-size: 12px; writing-mode: vertical-rl; }
+    .deduction-box { padding: clamp(18px, 3vw, 30px); border: 1px solid var(--line); background: rgba(255,255,255,.035); }
+    .deduction-box .kicker { margin-bottom: 12px; }
+    .deduction-box p { font-size: 15px; }
+    .unknown-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 16px; }
+    .unknown-chips span { padding: 6px 9px; border: 1px dashed rgba(145,197,181,.55); color: var(--mint); font-size: 11px; }
+
+    .transfer-grid { display: grid; grid-template-columns: 1fr 90px 1fr; align-items: center; gap: 12px; }
+    .transfer-panel { min-height: 178px; padding: 20px; border: 1px solid var(--line); background: rgba(255,255,255,.035); }
+    .transfer-panel h3 { margin: 12px 0 7px; }
+    .transfer-panel p { font-size: 13px; }
+    .transfer-symbol { color: var(--gold); font: 31px Georgia, serif; text-align: center; }
+    .game-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .game-tabs span { padding: 7px 10px; border: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+
+    .bottombar { min-height: 48px; }
+    .progress-wrap { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .page-count { min-width: 54px; color: var(--ink); font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .progress-track { width: clamp(80px, 18vw, 210px); height: 3px; background: rgba(245,237,220,.2); }
+    .progress-fill { width: 11.11%; height: 100%; background: var(--coral); transition: width .25s ease; }
+    .key-hint { color: var(--muted); font-size: 11px; }
+    .controls { display: flex; align-items: center; gap: 8px; }
+    .nav-button {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(245,237,220,.28);
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      transition: background .18s ease, color .18s ease, border-color .18s ease;
+    }
+    .nav-button:hover:not(:disabled), .nav-button:focus-visible { border-color: var(--gold); background: var(--gold); color: var(--forest); outline: none; }
+    .nav-button:disabled { opacity: .35; cursor: not-allowed; }
+    .nav-button svg { width: 17px; height: 17px; }
+
+    @media (min-width: 1500px) {
+      .slide { min-height: min(76vh, 820px); }
+    }
+
+    @media (max-width: 760px) {
+      .app { padding: 12px 12px 10px; gap: 8px; }
+      .topbar { padding-inline: 3px; }
+      .brand { font-size: 12px; }
+      .brand-mark { width: 26px; height: 26px; }
+      .top-meta { font-size: 10px; }
+      .slide { min-height: 0; padding: 22px 20px 18px; gap: 18px; }
+      .slide-foot { align-items: start; }
+      .source { max-width: 56%; font-size: 9px; }
+      .takeaway { max-width: 44%; font-size: 10px; }
+      .hero-grid, .cards-table { grid-template-columns: 1fr; gap: 12px; }
+      .hero-grid .content { align-self: end; }
+      .clue-board { min-height: 172px; max-width: 390px; margin: 0 auto; }
+      .clue { min-height: 72px; padding: 10px; }
+      .clue strong { margin-top: 5px; font-size: 12px; }
+      .clue-result { min-height: 72px; font-size: 11px; }
+      .record-strip { gap: 7px; }
+      .record { min-height: 126px; padding: 12px; }
+      .record strong { font-size: 14px; }
+      .record span:last-child { font-size: 11px; }
+      .record-number { font-size: 20px; }
+      .mission-flow { grid-template-columns: 1fr 34px 1fr; gap: 7px; }
+      .team-board, .result-ticket { padding: 14px; }
+      .players { gap: 6px; }
+      .player { width: 37px; font-size: 13px; }
+      .flow-arrow { font-size: 20px; }
+      .result-ticket strong { font-size: 21px; }
+      .result-ticket p { font-size: 11px; }
+      .claim { min-height: 140px; padding: 13px; }
+      .claim-head { align-items: start; flex-direction: column; gap: 6px; margin-bottom: 9px; }
+      .claim-head strong { font-size: 14px; }
+      .claim p { font-size: 11px; }
+      .mini-deck { min-height: 120px; }
+      .mini-card { width: 67px; }
+      .transfer-grid { grid-template-columns: 1fr 36px 1fr; gap: 6px; }
+      .transfer-panel { min-height: 155px; padding: 13px; }
+      .transfer-panel p { font-size: 11px; }
+      .transfer-symbol { font-size: 22px; }
+      .key-hint { display: none; }
+      .nav-button { width: 40px; height: 40px; }
+    }
+
+    @media (max-width: 430px) {
+      .app { min-height: 100svh; grid-template-rows: auto minmax(0, 1fr) auto; }
+      .stage { min-height: 0; }
+      .slide { min-height: 0; padding: 18px 15px 14px; gap: 12px; }
+      h1 { font-size: clamp(32px, 10vw, 43px); }
+      h2 { font-size: clamp(27px, 8vw, 35px); margin-bottom: 11px; }
+      h3 { font-size: 16px; }
+      p, .lead { font-size: 14px; line-height: 1.55; }
+      .chapter-mark { font-size: 11px; }
+      .two-lanes, .compare, .example-grid { gap: 8px; }
+      .lane, .compare-card, .example-card { padding: 13px; }
+      .lane-label { font-size: 11px; }
+      .small-note { font-size: 11px; }
+      .callout { margin-top: 10px; padding: 10px; font-size: 11px; }
+      .compare-card { min-height: 0; }
+      .big-quote { font-size: 19px; }
+      .steps { margin-top: 6px; }
+      .step { padding-right: 12px; }
+      .step:not(:last-child)::after { right: 2px; width: 12px; }
+      .step-no { width: 32px; margin-bottom: 9px; }
+      .step p { font-size: 11px; }
+      .spoken-example { margin-top: 7px; padding: 10px; font-size: 11px; }
+      .team-label { margin-bottom: 12px; font-size: 10px; }
+      .result-ticket { padding: 11px; }
+      .result-ticket p { font-size: 10px; }
+      .limit-note { font-size: 10px; }
+      .deduction-box { padding: 14px; }
+      .deduction-box p { font-size: 12px; }
+      .game-tabs span { padding: 6px 7px; font-size: 10px; }
+      .slide-foot { gap: 7px; padding-top: 8px; }
+      .source { max-width: 58%; font-size: 8px; }
+      .takeaway { max-width: 42%; font-size: 9px; }
+      .progress-wrap { gap: 7px; }
+      .progress-track { width: 64px; }
+      .page-count { min-width: 46px; font-size: 11px; }
+    }
+
+    @media (max-height: 650px) and (min-width: 761px) {
+      .app { padding-block: 9px; gap: 7px; }
+      .slide { min-height: 0; padding-block: 22px; gap: 14px; }
+      h1 { font-size: clamp(34px, 5vw, 60px); }
+      h2 { font-size: clamp(28px, 3.5vw, 42px); margin-bottom: 10px; }
+      .clue-board { min-height: 190px; }
+      .record { min-height: 120px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark" aria-hidden="true"><span>推</span></span><span><strong>桌遊推理入門</strong>　FIELD NOTES</span></div>
+      <div class="top-meta">一套新手的觀察方法</div>
+    </header>
+
+    <main class="stage" id="presentation" aria-label="陣營推理入門教學簡報">
+      <section class="slide is-active" aria-roledescription="投影片" aria-label="第 1 頁，共 9 頁">
+        <div class="slide-head"><span class="eyebrow">01 / THE GAME</span><span class="chapter-mark">先看見全貌</span></div>
+        <div class="content hero-grid">
+          <div>
+            <h1>推理桌遊像一場<br><span class="accent">線索不完整</span>的團隊解謎</h1>
+            <p class="lead">每個人只握有一部分資訊。觀察行動、交換線索，再一起判斷接下來怎麼做。</p>
+          </div>
+          <div class="clue-board" aria-label="三張線索卡組合成共同判斷的圖解">
+            <div class="clue"><span class="kicker">線索 A</span><strong>有人知道更多</strong></div>
+            <div class="clue"><span class="kicker">線索 B</span><strong>行動留下紀錄</strong></div>
+            <div class="clue"><span class="kicker">線索 C</span><strong>說法需要核對</strong></div>
+            <div class="clue-result">拼起線索<br>再作判斷</div>
+          </div>
+        </div>
+        <div class="slide-foot"><span class="takeaway">陣營推理：用不完整資訊理解身分與目標。</span><span class="source">Source: <a href="../wiki/start-here.md">wiki/start-here.md</a></span></div>
+      </section>
+
+      <section class="slide" hidden aria-roledescription="投影片" aria-label="第 2 頁，共 9 頁">
+        <div class="slide-head"><span class="eyebrow">02 / INFORMATION</span><span class="chapter-mark">視角不相同</span></div>
+        <div class="content">
+          <h2>每個人知道的，<span class="mint">不一定一樣</span></h2>
+          <p class="lead">角色規則會決定每位玩家能看到哪些資訊。</p>
+          <div class="two-lanes" style="margin-top:22px">
+            <article class="lane known"><div class="lane-label"><b>有線索</b><span>掌握部分角色資訊</span></div><p>可能知道某些人的身分，也要留意如何運用這份資訊。</p><div class="small-note">阿瓦隆例子：梅林知道部分紅方身分。</div></article>
+            <article class="lane unknown"><div class="lane-label"><b>待推理</b><span>從公開紀錄開始</span></div><p>不知道其他人拿到什麼身分，先觀察可見行動再形成假設。</p><div class="small-note">不同角色、不同遊戲，知道的範圍也不同。</div></article>
+          </div>
+          <div class="callout">先問：「這個角色按規則能知道什麼？」不要假設每個人都看見同一份線索。</div>
+        </div>
+        <div class="slide-foot"><span class="takeaway">資訊落差是推理的起點。</span><span class="source">Source: <a href="../wiki/hidden-information.md">wiki/hidden-information.md</a> · <a href="../wiki/avalon.md">wiki/avalon.md</a> · <a href="../wiki/werewolf.md">wiki/werewolf.md</a></span></div>
+      </section>
+
+      <section class="slide" hidden aria-roledescription="投影片" aria-label="第 3 頁，共 9 頁">
+        <div class="slide-head"><span class="eyebrow">03 / PUBLIC RECORD</span><span class="chapter-mark">留下可回查的痕跡</span></div>
+        <div class="content">
+          <h2>行動留下紀錄，<span class="accent">承諾不一定可核對</span></h2>
+          <p class="lead">把注意力放在其他人也能看見、事後也能回想的事情。</p>
+          <div class="record-strip" style="margin-top:24px">
+            <article class="record"><span class="record-number">01</span><div><strong>投票</strong><span>支持了哪個提案？</span></div></article>
+            <article class="record"><span class="record-number">02</span><div><strong>組隊</strong><span>提名了哪些人同行？</span></div></article>
+            <article class="record"><span class="record-number">03</span><div><strong>出牌</strong><span>公開打出了什麼？</span></div></article>
+          </div>
+          <div class="record-quote">像小組合作：不只聽「我會做」，也回頭看分工紀錄和實際完成項目。</div>
+        </div>
+        <div class="slide-foot"><span class="takeaway">紀錄能幫助核對，不會單獨證明身分。</span><span class="source">Source: <a href="../wiki/public-evidence.md">wiki/public-evidence.md</a> · <a href="../wiki/beginner-playbook.md">wiki/beginner-playbook.md</a></span></div>
+      </section>
+
+      <section class="slide" hidden aria-roledescription="投影片" aria-label="第 4 頁，共 9 頁">
+        <div class="slide-head"><span class="eyebrow">04 / FACT OR GUESS</span><span class="chapter-mark">推理要留空間</span></div>
+        <div class="content">
+          <h2>先分清<span class="gold">事實</span>和<span class="accent">猜測</span></h2>
+          <p class="lead">行為可以提醒我們追問，但不等於已經知道答案。</p>
+          <div class="compare" style="margin-top:24px">
+            <article class="compare-card fact"><div class="kicker">看得見的事實</div><div class="big-quote">「拼圖少了一片。」</div><p>可以回頭檢查桌面，和其他人一起確認。</p></article>
+            <article class="compare-card guess"><div class="kicker">尚待驗證的推測</div><div class="big-quote">「一定是某人拿走。」</div><p>還有其他可能；先找紀錄或提出問題。</p></article>
+          </div>
+        </div>
+        <div class="slide-foot"><span class="takeaway">把「我看見」與「我猜想」分開說。</span><span class="source">Source: <a href="../wiki/deduction-and-bluffing.md">wiki/deduction-and-bluffing.md</a> · <a href="../wiki/public-evidence.md">wiki/public-evidence.md</a></span></div>
+      </section>
+
+      <section class="slide" hidden aria-roledescription="投影片" aria-label="第 5 頁，共 9 頁">
+        <div class="slide-head"><span class="eyebrow">05 / SPEAK CLEARLY</span><span class="chapter-mark">輪到你時</span></div>
+        <div class="content">
+          <h2>發言只要講<span class="mint">三件事</span></h2>
+          <div class="steps">
+            <article class="step"><span class="step-no">1</span><h3>立場</h3><p>我目前怎麼判斷？有多確定？</p></article>
+            <article class="step"><span class="step-no">2</span><h3>依據</h3><p>我看到哪筆紀錄或哪條規則？</p></article>
+            <article class="step"><span class="step-no">3</span><h3>建議</h3><p>接下來可以怎麼做？為什麼？</p></article>
+          </div>
+          <div class="spoken-example">「我還不確定；甲上輪反對了這支隊伍。我建議先比較這輪名單，不只憑一票下結論。」</div>
+        </div>
+        <div class="slide-foot"><span class="takeaway">立場 → 依據 → 建議</span><span class="source">Source: <a href="../wiki/beginner-playbook.md">wiki/beginner-playbook.md</a></span></div>
+      </section>
+
+      <section class="slide" hidden aria-roledescription="投影片" aria-label="第 6 頁，共 9 頁">
+        <div class="slide-head"><span class="eyebrow">06 / AVALON</span><span class="chapter-mark">一次任務結果</span></div>
+        <div class="content">
+          <h2>任務失敗，能告訴你什麼？</h2>
+          <p class="lead">先縮小範圍，不急著點名。</p>
+          <div class="mission-flow" style="margin-top:20px">
+            <div class="team-board"><div class="team-label"><span>同一支任務隊伍</span><span>阿瓦隆</span></div><div class="players" aria-label="隊伍成員示意"><span class="player">甲</span><span class="player question">乙</span><span class="player">丙</span><span class="player">丁</span></div></div>
+            <div class="flow-arrow" aria-hidden="true">→</div>
+            <div class="result-ticket"><span class="kicker">任務結果</span><strong>失敗</strong><p>依 Wiki 所述規則，隊伍中至少有一名紅方。</p></div>
+          </div>
+          <div class="limit-note">但只看結果，還不能確定是哪一位。像小組作業不理想，應檢查合作過程，而非直接指認某人。</div>
+        </div>
+        <div class="slide-foot"><span class="takeaway">結果縮小範圍，不等於指出個人。</span><span class="source">Source: <a href="../wiki/avalon.md">wiki/avalon.md</a> · <a href="../wiki/public-evidence.md">wiki/public-evidence.md</a></span></div>
+      </section>
+
+      <section class="slide" hidden aria-roledescription="投影片" aria-label="第 7 頁，共 9 頁">
+        <div class="slide-head"><span class="eyebrow">07 / WEREWOLF</span><span class="chapter-mark">比較兩種主張</span></div>
+        <div class="content">
+          <h2>兩人都自稱預言家，<br><span class="gold">怎麼比較？</span></h2>
+          <p class="lead">看資訊依據與後續行動是否一致，不只看誰說得有自信。</p>
+          <div class="claim-grid" style="margin-top:20px">
+            <article class="claim"><div class="claim-head"><strong>玩家甲的主張</strong><span class="claim-tag">待核對</span></div><p>他說自己查驗過玩家，說明資訊是怎麼來的。</p></article>
+            <article class="claim"><div class="claim-head"><strong>玩家乙的主張</strong><span class="claim-tag">待核對</span></div><p>同樣檢查查驗資訊，並看後續行動有沒有前後一致。</p></article>
+          </div>
+          <div class="evidence-question">像兩位同學報告同一件事：先問「你的根據是什麼？」</div>
+        </div>
+        <div class="slide-foot"><span class="takeaway">比較證據，不用語氣猜身分。</span><span class="source">Source: <a href="../wiki/werewolf.md">wiki/werewolf.md</a> · <a href="../wiki/hidden-information.md">wiki/hidden-information.md</a></span></div>
+      </section>
+
+      <section class="slide" hidden aria-roledescription="投影片" aria-label="第 8 頁，共 9 頁">
+        <div class="slide-head"><span class="eyebrow">08 / LOVE LETTER</span><span class="chapter-mark">已知與未知</span></div>
+        <div class="content cards-table">
+          <div>
+            <h2>棄牌堆能縮小哪些可能？</h2>
+            <p class="lead">牌的總數固定，已公開的牌可以幫忙排除部分選項。</p>
+            <div class="mini-deck" aria-label="已公開牌與未知牌示意"><span class="mini-card">1</span><span class="mini-card">3</span><span class="mini-card">6</span><span class="mini-card out">未知牌</span></div>
+          </div>
+          <div class="deduction-box"><div class="kicker">從棄牌開始</div><p>看見某張牌已經打出，就不用再把它當成仍在別人手中的可能。</p><div class="unknown-chips"><span>其他手牌仍未知</span><span>牌庫仍未知</span><span>保留不確定</span></div><div class="small-note">像固定數量的卡片：看見拿出來的牌，不代表已知其他牌在哪裡。</div></div>
+        </div>
+        <div class="slide-foot"><span class="takeaway">排除不可能，不把可能說成確定。</span><span class="source">Source: <a href="../wiki/love-letter.md">wiki/love-letter.md</a> · <a href="../wiki/public-evidence.md">wiki/public-evidence.md</a></span></div>
+      </section>
+
+      <section class="slide" hidden aria-roledescription="投影片" aria-label="第 9 頁，共 9 頁">
+        <div class="slide-head"><span class="eyebrow">09 / TAKE IT WITH YOU</span><span class="chapter-mark">帶走方法，不帶錯規則</span></div>
+        <div class="content">
+          <h2>推理方法可以帶走，<br><span class="accent">規則不能混用</span></h2>
+          <div class="transfer-grid" style="margin-top:22px">
+            <article class="transfer-panel"><span class="kicker">可以帶走</span><h3>觀察、記錄、核對</h3><p>把證據和猜測分開，再用新資訊修正判斷。</p></article>
+            <div class="transfer-symbol" aria-hidden="true">≠</div>
+            <article class="transfer-panel"><span class="kicker">每款都不同</span><h3>勝利條件與行動意義</h3><p>先確認這一款的規則，再解讀每個行動。</p></article>
+          </div>
+          <div class="game-tabs" aria-label="本簡報提到的遊戲"><span>阿瓦隆｜任務隊伍</span><span>狼人殺｜角色主張</span><span>情書｜棄牌紀錄</span></div>
+        </div>
+        <div class="slide-foot"><span class="takeaway">先看規則，再讀線索。</span><span class="source">Source: <a href="../wiki/start-here.md">wiki/start-here.md</a> · <a href="../wiki/avalon.md">wiki/avalon.md</a> · <a href="../wiki/werewolf.md">wiki/werewolf.md</a> · <a href="../wiki/love-letter.md">wiki/love-letter.md</a></span></div>
+      </section>
+    </main>
+
+    <footer class="bottombar">
+      <div class="progress-wrap"><span class="page-count" id="pageCount" aria-live="polite">01 / 09</span><div class="progress-track" role="progressbar" aria-label="簡報進度" aria-valuemin="1" aria-valuemax="9" aria-valuenow="1"><div class="progress-fill" id="progressFill"></div></div><span class="key-hint">← → 翻頁</span></div>
+      <nav class="controls" aria-label="投影片導覽">
+        <button class="nav-button" id="prevButton" type="button" aria-label="上一頁" disabled>
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 5 8 12l7 7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="nav-button" id="nextButton" type="button" aria-label="下一頁">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m9 5 7 7-7 7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </nav>
+    </footer>
+  </div>
+
+  <script>
+    (() => {
+      const slides = Array.from(document.querySelectorAll(".slide"));
+      const previous = document.getElementById("prevButton");
+      const next = document.getElementById("nextButton");
+      const count = document.getElementById("pageCount");
+      const fill = document.getElementById("progressFill");
+      const progress = document.querySelector('[role="progressbar"]');
+      let current = 0;
+
+      function showSlide(index) {
+        current = Math.max(0, Math.min(index, slides.length - 1));
+        slides.forEach((slide, slideIndex) => {
+          const active = slideIndex === current;
+          slide.hidden = !active;
+          slide.classList.toggle("is-active", active);
+          slide.setAttribute("aria-hidden", String(!active));
+        });
+        count.textContent = `${String(current + 1).padStart(2, "0")} / ${String(slides.length).padStart(2, "0")}`;
+        fill.style.width = `${((current + 1) / slides.length) * 100}%`;
+        progress.setAttribute("aria-valuenow", String(current + 1));
+        previous.disabled = current === 0;
+        next.disabled = current === slides.length - 1;
+        document.title = `${String(current + 1).padStart(2, "0")} / 09｜陣營推理入門`;
+      }
+
+      previous.addEventListener("click", () => showSlide(current - 1));
+      next.addEventListener("click", () => showSlide(current + 1));
+      document.addEventListener("keydown", (event) => {
+        if (event.altKey || event.ctrlKey || event.metaKey) return;
+        if (event.key === "ArrowLeft") { event.preventDefault(); showSlide(current - 1); }
+        if (event.key === "ArrowRight") { event.preventDefault(); showSlide(current + 1); }
+      });
+      showSlide(0);
+    })();
+  </script>
+</body>
+</html>
